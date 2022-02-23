@@ -618,7 +618,6 @@ void BluetoothA2DPSink::handle_audio_state(uint16_t event, void *p_param){
 
     if (is_i2s_output){
         if (ESP_A2D_AUDIO_STATE_STARTED == a2d->audio_stat.state) { 
-            m_pkt_cnt = 0; 
             ESP_LOGI(BT_AV_TAG,"i2s_start");
             if (i2s_start(i2s_port)!=ESP_OK){
                 ESP_LOGE(BT_AV_TAG, "i2s_start");
