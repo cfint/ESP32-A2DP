@@ -3,7 +3,7 @@
 # -- copyright GPLv3
 
 idf_component_register(
-    SRC_DIRS src
+    SRC_DIRS src src/codec_config
     INCLUDE_DIRS src 
     REQUIRES bt esp_common freertos hal log nvs_flash driver
 )

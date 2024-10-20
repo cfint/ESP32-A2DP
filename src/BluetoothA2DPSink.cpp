@@ -14,6 +14,8 @@
 // Copyright 2015-2016 Espressif Systems (Shanghai) PTE LTD
 
 #include "BluetoothA2DPSink.h"
+#include "codec_config/codec_config.h"
+
 
 // to support static callback functions
 BluetoothA2DPSink *actual_bluetooth_a2dp_sink;
@@ -532,29 +534,38 @@ void BluetoothA2DPSink::handle_audio_cfg(uint16_t event, void *p_param) {
   ESP_LOGI(BT_AV_TAG, "a2dp audio_cfg_cb , codec type %d",
            a2d->audio_cfg.mcc.type);
 
-  // determine sample rate
-  m_sample_rate = 16000;
-  char oct0 = a2d->audio_cfg.mcc.cie.sbc[0];
-  if (oct0 & (0x01 << 6)) {
-    m_sample_rate = 32000;
-  } else if (oct0 & (0x01 << 5)) {
-    m_sample_rate = 44100;
-  } else if (oct0 & (0x01 << 4)) {
-    m_sample_rate = 48000;
-  }
-  ESP_LOGI(BT_AV_TAG, "a2dp audio_cfg_cb , sample_rate %d", m_sample_rate);
-  if (sample_rate_callback != nullptr) {
-    sample_rate_callback(m_sample_rate);
-  }
+  // // determine sample rate
+  // m_sample_rate = 16000;
+  // char oct0 = a2d->audio_cfg.mcc.cie.sbc[0];
+  // if (oct0 & (0x01 << 6)) {
+  //   m_sample_rate = 32000;
+  // } else if (oct0 & (0x01 << 5)) {
+  //   m_sample_rate = 44100;
+  // } else if (oct0 & (0x01 << 4)) {
+  //   m_sample_rate = 48000;
+  // }
+  // ESP_LOGI(BT_AV_TAG, "a2dp audio_cfg_cb , sample_rate %d", m_sample_rate);
+  // if (sample_rate_callback != nullptr) {
+  //   sample_rate_callback(m_sample_rate);
+  // }
 
-  // for now only SBC stream is supported
-  if (a2d->audio_cfg.mcc.type == ESP_A2D_MCT_SBC) {
-    ESP_LOGI(BT_AV_TAG, "configure audio player %x-%x-%x-%x\n",
-             a2d->audio_cfg.mcc.cie.sbc[0], a2d->audio_cfg.mcc.cie.sbc[1],
-             a2d->audio_cfg.mcc.cie.sbc[2], a2d->audio_cfg.mcc.cie.sbc[3]);
+  // // for now only SBC stream is supported
+  // if (a2d->audio_cfg.mcc.type == ESP_A2D_MCT_SBC) {
+  //   ESP_LOGI(BT_AV_TAG, "configure audio player %x-%x-%x-%x\n",
+  //            a2d->audio_cfg.mcc.cie.sbc[0], a2d->audio_cfg.mcc.cie.sbc[1],
+  //            a2d->audio_cfg.mcc.cie.sbc[2], a2d->audio_cfg.mcc.cie.sbc[3]);
 
-    out->set_sample_rate(m_sample_rate);
-  }
+  //   out->set_sample_rate(m_sample_rate);
+  //   out->set_bits_per_sample(m_bits_per_sample);
+  // }
+
+  uint32_t sr;
+  uint8_t bps;
+  uint8_t ch;
+
+  get_codec_config(a2d, &sr, &bps, &ch);
+  out->set_sample_rate(sr);
+  out->set_bits_per_sample(bps);
 }
 
 void BluetoothA2DPSink::handle_avrc_connection_state(bool connected) {
