@@ -25,6 +25,7 @@ class BluetoothA2DPOutput {
   virtual size_t write(const uint8_t *data, size_t len) = 0;
   virtual void end() = 0;
   virtual void set_sample_rate(int rate) = 0;
+  virtual void set_bits_per_sample(int m_bits_per_sample) =0;
   virtual void set_output_active(bool active) = 0;
 
 #if A2DP_I2S_AUDIOTOOLS
@@ -73,6 +74,7 @@ class BluetoothA2DPOutputAudioTools : public BluetoothA2DPOutput {
   size_t write(const uint8_t *data, size_t len) override;
   void end() override;
   void set_sample_rate(int rate) override;
+  void set_bits_per_sample(int bits_per_sample) override;
   void set_output_active(bool active) override;
 
   operator bool() { 
@@ -133,6 +135,7 @@ class BluetoothA2DPOutputPrint : public BluetoothA2DPOutput {
   }
   void end() override {}
   void set_sample_rate(int rate) override {};
+  void set_bits_per_sample(int bits_per_sample) override {};
   void set_output_active(bool active) override {};
 
   operator bool() { 
@@ -161,6 +164,7 @@ class BluetoothA2DPOutputLegacy : public BluetoothA2DPOutput {
   size_t write(const uint8_t *data, size_t len) override;
   void end() override;
   void set_sample_rate(int rate) override;
+  void set_bits_per_sample(int bits_per_sample) override;
   void set_output_active(bool active) override;
 
 #if A2DP_LEGACY_I2S_SUPPORT
@@ -233,6 +237,13 @@ class BluetoothA2DPOutputDefault : public BluetoothA2DPOutput {
       out_tools.set_sample_rate(rate);
     else
       out_legacy.set_sample_rate(rate);
+  }
+
+  void set_bits_per_sample(int bits_per_sample) override {
+    if (out_tools)
+      out_tools.set_bits_per_sample(bits_per_sample);
+    else
+      out_legacy.set_bits_per_sample(bits_per_sample);
   }
 
   void set_output_active(bool active) override {

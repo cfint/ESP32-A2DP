@@ -173,6 +173,12 @@ void BluetoothA2DPOutputLegacy::set_sample_rate(int m_sample_rate) {
 #endif
 }
 
+  void BluetoothA2DPOutputLegacy::set_bits_per_sample(int bps) {
+  #if A2DP_LEGACY_I2S_SUPPORT
+    // i2s_config.bits_per_sample = (i2s_bits_per_sample_t)bps;
+  #endif
+  }
+
 void BluetoothA2DPOutputLegacy::set_output_active(bool active) {
 #if A2DP_LEGACY_I2S_SUPPORT
   if (active) {
@@ -229,15 +235,28 @@ void BluetoothA2DPOutputAudioTools::set_sample_rate(int m_sample_rate) {
   ESP_LOGI(BT_AV_TAG, "%s %d", __func__, m_sample_rate);
   if (p_audio_print != nullptr) {
     audio_tools::AudioInfo info = p_audio_print->audioInfo();
-    if (info.sample_rate != m_sample_rate || info.channels != 2 ||
-        info.bits_per_sample != 16) {
+    if (info.sample_rate != m_sample_rate) {
       info.sample_rate = m_sample_rate;
-      info.channels = 2;
-      info.bits_per_sample = 16;
       p_audio_print->setAudioInfo(info);
       ESP_LOGI(BT_AV_TAG, "%s sample_rate %d -> %d", __func__, info.sample_rate, p_audio_print->audioInfo().sample_rate);
     } else {
       ESP_LOGI(BT_AV_TAG, "%s sample_rate not changed %d", __func__, info.sample_rate);
+    }
+  }
+#endif
+}
+
+void BluetoothA2DPOutputAudioTools::set_bits_per_sample(int m_bits_per_sample) {
+#if A2DP_I2S_AUDIOTOOLS
+  ESP_LOGI(BT_AV_TAG, "%s %d", __func__, m_bits_per_sample);
+  if (p_audio_print != nullptr) {
+    AudioInfo info = p_audio_print->audioInfo();
+    if (info.bits_per_sample != m_bits_per_sample) {
+      info.bits_per_sample = m_bits_per_sample;
+      p_audio_print->setAudioInfo(info);
+      ESP_LOGI(BT_AV_TAG, "%s bits_per_sample %d -> %d", __func__, info.bits_per_sample, p_audio_print->audioInfo().bits_per_sample);
+    } else {
+      ESP_LOGI(BT_AV_TAG, "%s bits_per_sample not changed %d", __func__, info.bits_per_sample);
     }
   }
 #endif
