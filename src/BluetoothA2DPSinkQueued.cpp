@@ -48,39 +48,35 @@ void BluetoothA2DPSinkQueued::i2s_task_handler(void *arg) {
      * `dma_frame_num * dma_desc_num * i2s_channel_num * i2s_data_bit_width / 8`.
      * Transmit `dma_frame_num * dma_desc_num` bytes to DMA is trade-off.
      */
-    is_starting = true;
-
-    while (true) {
-        if (is_starting){
-            // wait for ringbuffer to be filled
-            if (pdTRUE != xSemaphoreTake(s_i2s_write_semaphore, portMAX_DELAY)){
-                continue;
-            }
-            is_starting = false;
-        }
-        // xSemaphoreTake was succeeding here, so we have the buffer filled up
-        item_size = 0;
-
-        // receive data from ringbuffer and write it to I2S DMA transmit buffer 
-        data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &item_size, (TickType_t)pdMS_TO_TICKS(i2s_ticks), i2s_write_size_upto);
-        if (item_size == 0) {
-            ESP_LOGI(BT_APP_TAG, "ringbuffer underflowed! mode changed: RINGBUFFER_MODE_PREFETCHING");
-            ringbuffer_mode = RINGBUFFER_MODE_PREFETCHING;
+    while (s_bt_i2s_task_handle) {
+        if (pdTRUE != xSemaphoreTake(s_i2s_write_semaphore, portMAX_DELAY)){
             continue;
-        } 
-
-        // if i2s is not active we just consume the buffer w/o output
-        if (is_i2s_active && is_output){
-            size_t written = i2s_write_data(data, item_size);
-            ESP_LOGD(BT_AV_TAG, "i2s_task_handler: %d->%d", item_size, written);
-            if (written==0){
-                ESP_LOGE(BT_APP_TAG, "i2s_write_data failed %d->%d", item_size, written);
-                continue;
-            }
         }
 
-        vRingbufferReturnItem(s_ringbuf_i2s, (void *)data);
-        delay_ms(5);
+        while (true) {
+            // xSemaphoreTake was succeeding here, so we have the buffer filled up
+            item_size = 0;
+
+            // receive data from ringbuffer and write it to I2S DMA transmit buffer
+            data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &item_size, (TickType_t)pdMS_TO_TICKS(i2s_ticks), i2s_write_size_upto);
+            if (item_size == 0) {
+                ESP_LOGI(BT_APP_TAG, "ringbuffer underflowed! mode changed: RINGBUFFER_MODE_PREFETCHING");
+                ringbuffer_mode = RINGBUFFER_MODE_PREFETCHING;
+                break;
+            }
+
+            // if i2s is not active we just consume the buffer w/o output
+            if (is_i2s_active && is_output){
+                size_t written = i2s_write_data(data, item_size);
+                ESP_LOGD(BT_AV_TAG, "i2s_task_handler: %d->%d", item_size, written);
+                if (written==0){
+                    ESP_LOGE(BT_APP_TAG, "i2s_write_data failed %d->%d", item_size, written);
+                    continue;
+                }
+            }
+
+            vRingbufferReturnItem(s_ringbuf_i2s, (void *)data);
+        }
     }
 }
 
