@@ -248,6 +248,13 @@ class BluetoothA2DPSink : public BluetoothA2DPCommon {
     this->sample_rate_callback = callback;
   }
 
+  virtual void set_codec_config_callback(void (*callback)(uint32_t rate,
+                                                          uint8_t bps,
+                                                          uint8_t channels))
+  {
+    this->codec_config_callback = callback;
+  }
+
   /// Define callback which is called when we receive data: This callback
   /// provides access to the data
   virtual void set_stream_reader(void (*callBack)(const uint8_t *, uint32_t),
@@ -441,6 +448,7 @@ class BluetoothA2DPSink : public BluetoothA2DPCommon {
   void (*avrc_rn_volchg_complete_callback)(int) = nullptr;
   bool (*address_validator)(esp_bd_addr_t remote_bda) = nullptr;
   void (*sample_rate_callback)(uint16_t rate) = nullptr;
+  void (*codec_config_callback)(uint32_t rate, uint8_t bps, uint8_t channels) = nullptr;
   bool swap_left_right = false;
   int try_reconnect_max_count = AUTOCONNECT_TRY_NUM;
 

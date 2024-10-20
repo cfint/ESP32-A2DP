@@ -564,6 +564,11 @@ void BluetoothA2DPSink::handle_audio_cfg(uint16_t event, void *p_param) {
   uint8_t ch;
 
   get_codec_config(a2d, &sr, &bps, &ch);
+
+  if (codec_config_callback != nullptr) {
+    codec_config_callback(sr, bps, ch);
+  }
+
   out->set_sample_rate(sr);
   out->set_bits_per_sample(bps);
 }
