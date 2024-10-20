@@ -75,7 +75,6 @@ class BluetoothA2DPSinkQueued : public BluetoothA2DPSink {
   int i2s_ringbuffer_size = RINGBUF_HIGHEST_WATER_LEVEL;
   UBaseType_t i2s_task_priority = configMAX_PRIORITIES - 3;
   volatile A2DPRingBufferMode ringbuffer_mode = RINGBUFFER_MODE_PROCESSING;
-  volatile bool is_starting = true;
   size_t i2s_write_size_upto = 240 * 6;
   int i2s_ticks = 20;
   int ringbuffer_prefetch_percent = RINGBUF_PREFETCH_PERCENT;
@@ -89,7 +88,6 @@ class BluetoothA2DPSinkQueued : public BluetoothA2DPSink {
     BluetoothA2DPSink::set_i2s_active(active);
     if (active) {
       ringbuffer_mode = RINGBUFFER_MODE_PREFETCHING;
-      is_starting = true;
     }
   }
 
