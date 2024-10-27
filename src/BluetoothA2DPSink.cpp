@@ -1115,9 +1115,9 @@ size_t BluetoothA2DPSink::i2s_write_data(const uint8_t *data,
   // split up outout to max size
   int open = item_size;
   int processed = 0;
-  while (open > 0) {
-    int written =
-        out->write(data + processed, std::min(open, max_write_size));
+  int written = -1;
+  while(open >0 && written != 0){
+    written = out->write(data + processed, std::min(open, max_write_size));
     open -= written;
     processed += written;
     // add some delay between the writes
