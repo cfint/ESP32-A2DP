@@ -86,7 +86,7 @@ size_t BluetoothA2DPSinkQueued::write_audio(const uint8_t *data, size_t size)
     BaseType_t done = pdFALSE;
 
     // esp-idf bluetooth stack can still call write callback when disconnected.
-    if (!is_i2s_active){
+    if (!is_i2s_active || !s_ringbuf_i2s){
         return 0;
     }
 
