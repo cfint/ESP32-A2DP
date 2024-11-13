@@ -166,7 +166,6 @@ void BluetoothA2DPSink::init_i2s() {
   ESP_LOGI(BT_AV_TAG, "init_i2s");
   if (is_output) {
     out->begin();
-    is_i2s_active = true;
   }
 }
 
