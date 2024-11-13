@@ -71,7 +71,6 @@ void BluetoothA2DPSinkQueued::i2s_task_handler(void *arg) {
                 ESP_LOGD(BT_AV_TAG, "i2s_task_handler: %d->%d", item_size, written);
                 if (written==0){
                     ESP_LOGE(BT_APP_TAG, "i2s_write_data failed %d->%d", item_size, written);
-                    continue;
                 }
             }
 
