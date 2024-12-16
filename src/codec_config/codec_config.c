@@ -198,7 +198,7 @@ bool get_codec_config(esp_a2d_cb_param_t *a2d, uint32_t* sr, uint8_t* bps,
         {
 #if defined(CONFIG_BT_A2DP_LDAC_DECODER)
             ESP_LOGI(CODEC_CONFIG_TAG, "%s: configure LDAC codec", __func__);
-            bits_per_sample = 16;
+            bits_per_sample = 32;
 
             sample_rate = 0;
             uint8_t oct0 = a2d->audio_cfg.mcc.cie.ldac[6]; // sample rate
