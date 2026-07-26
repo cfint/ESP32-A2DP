@@ -14,6 +14,7 @@
 #include "a2dp_vendor_opus_constants.h"
 #include "a2dp_vendor_lc3plus_constants.h"
 #include "a2dp_aac_constants.h"
+#include "a2dp_vendor_lhdcv5_constants.h"
 
 
 bool get_codec_config(esp_a2d_cb_param_t *a2d, uint32_t* sr, uint8_t* bps,
@@ -267,6 +268,30 @@ bool get_codec_config(esp_a2d_cb_param_t *a2d, uint32_t* sr, uint8_t* bps,
 #else
             ESP_LOGE(CODEC_CONFIG_TAG, "LC3 Plus sink unsupported");
 #endif /* CONFIG_BT_A2DP_LC3PLUS_DECODER */
+        } else if (vendor_id == A2DP_LHDCV5_VENDOR_ID &&
+                   codec_id == A2DP_LHDCV5_CODEC_ID)
+        {
+#if defined(CONFIG_BT_A2DP_LHDCV5_DECODER)
+            ESP_LOGI(CODEC_CONFIG_TAG, "%s: configure LHDC V5 codec", __func__);
+            bits_per_sample = 32; // LHDC V5 supports 16, 24bit (24bit uses 32bit container)
+
+            uint8_t oct0 = a2d->audio_cfg.mcc.cie.lhdcv5[6]; // sample rate， you can find it in a2dp_vendor_lhdcv5_constants.h
+            if (oct0 & A2DP_LHDCV5_SAMPLING_FREQ_44100) {
+                sample_rate = 44100;
+            } else if (oct0 & A2DP_LHDCV5_SAMPLING_FREQ_48000) {
+                sample_rate = 48000;
+            } else if (oct0 & A2DP_LHDCV5_SAMPLING_FREQ_96000) {
+                sample_rate = 96000;
+            } else if (oct0 & A2DP_LHDCV5_SAMPLING_FREQ_192000) {
+                sample_rate = 192000;
+            } else {
+                ESP_LOGE(CODEC_CONFIG_TAG, "%s: Invalid LHDC V5 sample rate config", __func__);
+            }
+
+            channels = 2; // LHDC only supported stereo
+#else
+            ESP_LOGE(CODEC_CONFIG_TAG, "LHDC V5 sink unsupported");
+#endif /* CONFIG_BT_A2DP_LHDCV5_DECODER */
         } else {
             ESP_LOGE(CODEC_CONFIG_TAG, "%s: Unsupported vendor_id 0x%lx, codec_id 0x%x",
                      __func__, vendor_id, codec_id);
